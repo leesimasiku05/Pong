@@ -1,11 +1,7 @@
 import tkinter as tk
 import random
 
-
-# ==============================
-# GAME SETTINGS
-# ==============================
-
+# Game settings
 WIDTH = 900
 HEIGHT = 600
 
@@ -20,11 +16,7 @@ BALL_SPEED_Y = 4
 
 WINNING_SCORE = 10
 
-
-# ==============================
-# GAME VARIABLES
-# ==============================
-
+# Game variables
 player1_score = 0
 player2_score = 0
 
@@ -33,23 +25,15 @@ game_over = False
 ball_dx = BALL_SPEED_X
 ball_dy = BALL_SPEED_Y
 
-
-# ==============================
-# CREATE WINDOW
-# ==============================
-
+# Create window
 window = tk.Tk()
 window.title("Two Player Pong")
 window.resizable(False, False)
 
-
-# ==============================
-# SCORE DISPLAY
-# ==============================
-
+# Score display
 score_label = tk.Label(
     window,
-    text="0        0",
+    text="0       0",
     font=("Arial", 32),
     bg="black",
     fg="white"
@@ -57,11 +41,7 @@ score_label = tk.Label(
 
 score_label.pack(fill="x")
 
-
-# ==============================
-# GAME CANVAS
-# ==============================
-
+# Game canvas
 canvas = tk.Canvas(
     window,
     width=WIDTH,
@@ -72,11 +52,7 @@ canvas = tk.Canvas(
 
 canvas.pack()
 
-
-# ==============================
-# CREATE PADDLES
-# ==============================
-
+# Create paddles
 player1 = canvas.create_rectangle(
     30,
     HEIGHT // 2 - PADDLE_HEIGHT // 2,
@@ -93,11 +69,7 @@ player2 = canvas.create_rectangle(
     fill="white"
 )
 
-
-# ==============================
-# CREATE BALL
-# ==============================
-
+# Create ball
 ball = canvas.create_oval(
     WIDTH // 2 - BALL_SIZE // 2,
     HEIGHT // 2 - BALL_SIZE // 2,
@@ -106,11 +78,7 @@ ball = canvas.create_oval(
     fill="white"
 )
 
-
-# ==============================
-# CREATE CENTER LINE
-# ==============================
-
+# Create center line
 for y in range(0, HEIGHT, 30):
     canvas.create_rectangle(
         WIDTH // 2 - 2,
@@ -120,11 +88,7 @@ for y in range(0, HEIGHT, 30):
         fill="white"
     )
 
-
-# ==============================
-# KEYBOARD STATE
-# ==============================
-
+# Keyboard controls
 keys = set()
 
 
@@ -140,44 +104,27 @@ window.bind("<KeyPress>", key_pressed)
 window.bind("<KeyRelease>", key_released)
 
 
-# ==============================
-# MOVE PADDLES
-# ==============================
-
 def move_paddles():
-
-    # --------------------------
-    # PLAYER 1
-    # --------------------------
-
+    # Player 1 movement
     if "w" in keys or "W" in keys:
         canvas.move(player1, 0, -PADDLE_SPEED)
 
     if "s" in keys or "S" in keys:
         canvas.move(player1, 0, PADDLE_SPEED)
 
-
-    # --------------------------
-    # PLAYER 2
-    # --------------------------
-
+    # Player 2 movement
     if "Up" in keys:
         canvas.move(player2, 0, -PADDLE_SPEED)
 
     if "Down" in keys:
         canvas.move(player2, 0, PADDLE_SPEED)
 
-
-    # --------------------------
-    # Keep paddles inside screen
-    # --------------------------
-
+    # Keep paddles inside the screen
     keep_paddle_inside(player1)
     keep_paddle_inside(player2)
 
 
 def keep_paddle_inside(paddle):
-
     position = canvas.coords(paddle)
 
     top = position[1]
@@ -190,14 +137,8 @@ def keep_paddle_inside(paddle):
         canvas.move(paddle, 0, HEIGHT - bottom)
 
 
-# ==============================
-# MOVE BALL
-# ==============================
-
 def move_ball():
-
-    global ball_dx
-    global ball_dy
+    global ball_dx, ball_dy
 
     canvas.move(ball, ball_dx, ball_dy)
 
@@ -208,95 +149,51 @@ def move_ball():
     ball_right = position[2]
     ball_bottom = position[3]
 
-
-    # ==========================
-    # TOP / BOTTOM COLLISION
-    # ==========================
-
+    # Bounce off the top and bottom walls
     if ball_top <= 0:
         ball_dy = abs(ball_dy)
 
     if ball_bottom >= HEIGHT:
         ball_dy = -abs(ball_dy)
 
-
-    # ==========================
-    # PADDLE COLLISION
-    # ==========================
-
+    # Check paddle collisions
     ball_position = canvas.coords(ball)
 
     player1_position = canvas.coords(player1)
     player2_position = canvas.coords(player2)
 
-
     # Player 1 collision
-
     if collision(ball_position, player1_position):
-
         ball_dx = abs(ball_dx)
 
-        # Change vertical direction depending
-        # on where the ball hits the paddle
-
-        paddle_center = (
-            player1_position[1] +
-            PADDLE_HEIGHT / 2
-        )
-
-        ball_center = (
-            ball_top +
-            BALL_SIZE / 2
-        )
+        paddle_center = player1_position[1] + PADDLE_HEIGHT / 2
+        ball_center = ball_top + BALL_SIZE / 2
 
         difference = ball_center - paddle_center
 
         ball_dy = difference / 10
-
 
     # Player 2 collision
-
     if collision(ball_position, player2_position):
-
         ball_dx = -abs(ball_dx)
 
-        paddle_center = (
-            player2_position[1] +
-            PADDLE_HEIGHT / 2
-        )
-
-        ball_center = (
-            ball_top +
-            BALL_SIZE / 2
-        )
+        paddle_center = player2_position[1] + PADDLE_HEIGHT / 2
+        ball_center = ball_top + BALL_SIZE / 2
 
         difference = ball_center - paddle_center
 
         ball_dy = difference / 10
 
-
-    # ==========================
-    # PLAYER 2 SCORES
-    # ==========================
-
+    # Player 2 scores
     if ball_left <= 0:
         score_point(2)
 
-
-    # ==========================
-    # PLAYER 1 SCORES
-    # ==========================
-
+    # Player 1 scores
     if ball_right >= WIDTH:
         score_point(1)
 
 
-# ==============================
-# COLLISION DETECTION
-# ==============================
-
 def collision(object1, object2):
-
     return (
         object1[0] < object2[2]
         and object1[2] > object2[0]
@@ -305,29 +202,19 @@ def collision(object1, object2):
     )
 
 
-# ==============================
-# SCORE POINT
-# ==============================
-
 def score_point(player):
-
-    global player1_score
-    global player2_score
+    global player1_score, player2_score
 
     if player == 1:
         player1_score += 1
-
     else:
         player2_score += 1
 
-
     score_label.config(
-        text=f"{player1_score}        {player2_score}"
+        text=f"{player1_score}       {player2_score}"
     )
 
-
-    # Check for winner
-
+    # Check for a winner
     if player1_score >= WINNING_SCORE:
         end_game("PLAYER 1 WINS!")
 
@@ -338,14 +225,8 @@ def score_point(player):
         reset_ball()
 
 
-# ==============================
-# RESET BALL
-# ==============================
-
 def reset_ball():
-
-    global ball_dx
-    global ball_dy
+    global ball_dx, ball_dy
 
     canvas.coords(
         ball,
@@ -355,19 +236,12 @@ def reset_ball():
         HEIGHT // 2 + BALL_SIZE // 2
     )
 
-
-    # Randomize direction
-
+    # Randomize ball direction
     ball_dx = random.choice([-BALL_SPEED_X, BALL_SPEED_X])
     ball_dy = random.choice([-BALL_SPEED_Y, BALL_SPEED_Y])
 
 
-# ==============================
-# GAME OVER
-# ==============================
-
 def end_game(message):
-
     global game_over
 
     game_over = True
@@ -391,15 +265,8 @@ def end_game(message):
     )
 
 
-# ==============================
-# RESTART GAME
-# ==============================
-
 def restart_game(event=None):
-
-    global player1_score
-    global player2_score
-    global game_over
+    global player1_score, player2_score, game_over
 
     if not game_over:
         return
@@ -409,60 +276,14 @@ def restart_game(event=None):
 
     game_over = False
 
-    score_label.config(
-        text="0        0"
-    )
+    score_label.config(text="0       0")
 
     canvas.delete("game_over")
 
     # Reset paddles
-
     canvas.coords(
         player1,
         30,
         HEIGHT // 2 - PADDLE_HEIGHT // 2,
         30 + PADDLE_WIDTH,
-        HEIGHT // 2 + PADDLE_HEIGHT // 2
-    )
-
-    canvas.coords(
-        player2,
-        WIDTH - 30 - PADDLE_WIDTH,
-        HEIGHT // 2 - PADDLE_HEIGHT // 2,
-        WIDTH - 30,
-        HEIGHT // 2 + PADDLE_HEIGHT // 2
-    )
-
-    reset_ball()
-
-    game_loop()
-
-
-window.bind("<r>", restart_game)
-window.bind("<R>", restart_game)
-
-
-# ==============================
-# MAIN GAME LOOP
-# ==============================
-
-def game_loop():
-
-    if game_over:
-        return
-
-    move_paddles()
-    move_ball()
-
-    window.after(16, game_loop)
-
-
-# ==============================
-# START GAME
-# ==============================
-
-reset_ball()
-game_loop()
-
-window.mainloop()
-
+        HEIGHT
